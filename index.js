@@ -1,15 +1,17 @@
 const {fromEvent, Subject, BehaviorSubject} = rxjs;
-const {takeUntil} = rxjs.operators;
+const {takeUntil, map} = rxjs.operators;
 
 const documentReadyState$ = new BehaviorSubject(document.readyState);
 const onUnsubscribe$ = new Subject();
 
 fromEvent(document, 'readystatechange')
     .pipe(
+        map((event) => event.target.readyState),
         takeUntil(onUnsubscribe$)
     )
-    .subscribe(event => {
-        documentReadyState$.next(event.target.readyState)
+    .subscribe(state => {
+        documentReadyState$.next(state);
+
         if (event.target.readyState === 'complete') {
             markForUnsubscribe();
         }
